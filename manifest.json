@@ -1,0 +1,22 @@
+{
+  "short_name": "Inv Pro",
+  "name": "Inventory Pro",
+  "description": "A comprehensive mobile-first inventory management application with automated rate calculation, billing tracking, and depot analysis.",
+  "icons": [
+    {
+      "src": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgdmlld0JveD0iMCAwIDE5MiAxOTIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjE5MiIgaGVpZ2h0PSIxOTIiIHJ4PSI0MCIgZmlsbD0iIzRGNDZFNSIvPjxwYXRoIGQ9Ik0xNTkgMTIwVjcyQzE1OSA3MC4xMzMzIDE1OC40IDY4LjY2NjcgMTU3LjIgNjcuNkwxMDMuMiAzNS42QzEwMiAzNC40IDEwMC4yIDM0LjQgOTkgMzUuNkw0NSA2Ny42QzQzLjggNjguNjY2NyA0My4yIDcwLjEzMzMgNDMuMiA3MlYxMjBDNDMuMiAxMjEuODY3IDQzLjggMTIzLjMzMyA0NSAxMjQuNEw5OSAxNTYuNEMxMDAuMiAxNTcuNiAxMDIgMTU3LjYgMTAzLjIgMTU2LjRMMTU3LjIgMTI0LjRDMTU4LjQgMTIzLjMzMyAxNTkgMTIxLjg2NyAxNTkgMTIwWiIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIxMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PHBhdGggZD0iTTQ1LjU0IDY1Ljc2TDEwMS4xIDk2LjA2TDE1Ni40NiA2NS43NiIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIxMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PHBhdGggZD0iTTEwMS4xIDE2Mi42NlY5NiIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIxMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PC9zdmc+",
+      "type": "image/svg+xml",
+      "sizes": "192x192"
+    },
+    {
+      "src": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgdmlld0JveD0iMCAwIDUxMiA1MTIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjUxMiIgaGVpZ2h0PSI1MTIiIHJ4PSIxMDAiIGZpbGw9IiM0RjQ2RTUiLz48cGF0aCBkPSJNNDI0IDMyMFYxOTJDNDI0IDE4Ny4wMjIgNDIyLjQgMTgzLjExMSA0MTkuMiAxNzcuNkwyNzUuMiA5Ny42QzI3MiA5NC40IDI2Ny4yIDk0LjQgMjY0IDk3LjZMMTIwIDE3Ny42QzExNi44IDE4My4xMTEgMTE1LjIgMTg3LjAyMiAxMTUuMiAxOTJWMzIwQzExNS4yIDMyNC45NzggMTE2LjggMzI4Ljg4OSAxMjAgMzMxLjZMMjY0IDQxMS42QzI2Ny4yIDQxNC44IDI3MiA0MTQuOCAyNzUuMiA0MTEuNkw0MTkuMiAzMzEuNkM0MjIuNCAzMjguODg5IDQyNCAzMjQuOTc4IDQyNCAzMjBaIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjMwIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48cGF0aCBkPSJNMTIxLjQ0IDE3NS4zNkwyNjkuNiAyNTYuMTZMNDE3LjIyNyAxNzUuMzYiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS13aWR0aD0iMzAiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPjxwYXRoIGQ9Ik0yNjkuNiA0MzMuNzZWMjU2IiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjMwIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48L3N2Zz4=",
+      "type": "image/svg+xml",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#4f46e5",
+  "background_color": "#f8fafc",
+  "scope": "/"
+}
