@@ -1,14 +1,17 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useApp } from '../store/AppContext';
 import { Icons, THEMES } from '../constants';
+import AddEntityModal from './AddEntityModal';
+import { IndianEntry as IndianEntryType } from '../types';
 
 const IndianEntryForm: React.FC = () => {
-  const { businessEntities, addIndianEntry, updateIndianEntry, deleteIndianEntry, indianEntries, settings } = useApp();
+  const { businessEntities, addIndianEntry, updateIndianEntry, deleteIndianEntry, indianEntries, settings, priceRates } = useApp();
   const activeTheme = THEMES.find(t => t.name === settings.theme) || THEMES[0];
   
   const [isEditing, setIsEditing] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [modalType, setModalType] = useState<'SHIPPER' | 'BUYER' | 'DEPOT' | null>(null);
   const [formData, setFormData] = useState({
     date: new Date().toISOString().split('T')[0],
     invoiceNo: '',
@@ -29,23 +32,29 @@ const IndianEntryForm: React.FC = () => {
   const buyers = businessEntities.filter(e => e.type === 'BUYER');
   const depots = businessEntities.filter(e => e.type === 'DEPOT');
 
+  const defaultRates = useMemo(() => ({
+    'DOC': 485,
+    'CTN': 3,
+    'TON': 249,
+    'TRUCK UNLOAD': 150
+  }), []);
+
   useEffect(() => {
+    const getRate = (condition: 'DOC' | 'CTN' | 'TON' | 'TRUCK UNLOAD') => {
+      const buyerSpecificRate = priceRates.find(r => r.buyerName === formData.buyerName && r.condition === condition);
+      return buyerSpecificRate ? buyerSpecificRate.rate : defaultRates[condition];
+    };
+
     let total = 0;
-    // Calculation logic remains the same
-    let docRate = 485;
-    if (formData.buyerName === 'H&M') docRate = 220;
-    else if (formData.buyerName === 'H&M SEA AIR') docRate = 270;
-    total += formData.doc * docRate;
-    total += formData.ctn * 3;
-    total += formData.ton * 249;
-    let truckRate = 150;
-    if (formData.buyerName === 'PRIMARK') truckRate = 300;
-    else if (formData.shipperName === 'CONFERENCE KNITWEAR LTD' && formData.buyerName === 'MATALON') truckRate = 300;
-    total += formData.truckUnload * truckRate;
+    total += formData.doc * getRate('DOC');
+    total += formData.ctn * getRate('CTN');
+    total += formData.ton * getRate('TON');
+    total += formData.truckUnload * getRate('TRUCK UNLOAD');
     total += (formData.con || 0);
     total += (formData.others || 0);
+    
     setCalculatedTotal(total);
-  }, [formData]);
+  }, [formData, priceRates, defaultRates]);
 
   const resetForm = () => {
      setFormData({
@@ -54,6 +63,13 @@ const IndianEntryForm: React.FC = () => {
       doc: 0, ctn: 0, ton: 0, truckUnload: 0, con: 0, others: 0
     });
   }
+
+  const handleSaveFromModal = (newName: string) => {
+    if (modalType) {
+        setFormData(prev => ({ ...prev, [`${modalType.toLowerCase()}Name`]: newName }));
+    }
+    setModalType(null);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -68,7 +84,6 @@ const IndianEntryForm: React.FC = () => {
       }
       resetForm();
       setIsEditing(null);
-      alert(isEditing ? 'Entry Updated Successfully!' : 'Entry Saved to Cloud!');
     } catch (error) {
       alert('Operation Failed: Could not save data to Google Sheets.');
     } finally {
@@ -76,7 +91,7 @@ const IndianEntryForm: React.FC = () => {
     }
   };
 
-  const handleEdit = (entry: any) => {
+  const handleEdit = (entry: IndianEntryType) => {
     setIsEditing(entry.id);
     setFormData({
       date: entry.date, invoiceNo: entry.invoiceNo, shipperName: entry.shipperName,
@@ -107,6 +122,13 @@ const IndianEntryForm: React.FC = () => {
 
   return (
     <div className="space-y-6">
+       {modalType && (
+        <AddEntityModal 
+          entityType={modalType}
+          onClose={() => setModalType(null)}
+          onSave={handleSaveFromModal}
+        />
+      )}
       <div className="bg-white p-8 rounded-[40px] shadow-sm border border-slate-100">
         <h3 className="text-xl font-bold text-slate-900 mb-8 flex items-center gap-3">
            <div className={`p-2 rounded-xl bg-gradient-to-br ${activeTheme.from} ${activeTheme.to} text-white`}>
@@ -125,21 +147,30 @@ const IndianEntryForm: React.FC = () => {
             <input type="text" required placeholder="e.g. 10223-A" className="w-full p-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-indigo-500 font-bold" value={formData.invoiceNo} onChange={(e) => setFormData({...formData, invoiceNo: e.target.value})} />
           </div>
           <div className="space-y-2">
-            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.1em]">SHIPPER NAME</label>
+            <div className="flex justify-between items-center mb-1">
+                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.1em]">SHIPPER NAME</label>
+                <button type="button" onClick={() => setModalType('SHIPPER')} className="px-3 py-1 bg-indigo-50 text-indigo-500 rounded-lg text-[10px] font-black hover:bg-indigo-100 transition-all flex items-center gap-1"><Icons.Plus size={12}/> ADD</button>
+            </div>
             <select required className="w-full p-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-indigo-500 font-semibold" value={formData.shipperName} onChange={(e) => setFormData({...formData, shipperName: e.target.value})}>
               <option value="">Select Shipper</option>
               {shippers.map(s => <option key={s.id} value={s.name}>{s.name}</option>)}
             </select>
           </div>
           <div className="space-y-2">
-            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.1em]">BUYER NAME</label>
+             <div className="flex justify-between items-center mb-1">
+                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.1em]">BUYER NAME</label>
+                <button type="button" onClick={() => setModalType('BUYER')} className="px-3 py-1 bg-indigo-50 text-indigo-500 rounded-lg text-[10px] font-black hover:bg-indigo-100 transition-all flex items-center gap-1"><Icons.Plus size={12}/> ADD</button>
+            </div>
             <select required className="w-full p-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-indigo-500 font-semibold" value={formData.buyerName} onChange={(e) => setFormData({...formData, buyerName: e.target.value})}>
               <option value="">Select Buyer</option>
               {buyers.map(b => <option key={b.id} value={b.name}>{b.name}</option>)}
             </select>
           </div>
           <div className="space-y-2 md:col-span-2">
-            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.1em]">DEPOT NAME</label>
+            <div className="flex justify-between items-center mb-1">
+              <label className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.1em]">DEPOT NAME</label>
+              <button type="button" onClick={() => setModalType('DEPOT')} className="px-3 py-1 bg-indigo-50 text-indigo-500 rounded-lg text-[10px] font-black hover:bg-indigo-100 transition-all flex items-center gap-1"><Icons.Plus size={12}/> ADD</button>
+            </div>
             <select required className="w-full p-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-indigo-500 font-semibold" value={formData.depotName} onChange={(e) => setFormData({...formData, depotName: e.target.value})}>
               <option value="">Select Depot</option>
               {depots.map(d => <option key={d.id} value={d.name}>{d.name}</option>)}
@@ -160,7 +191,7 @@ const IndianEntryForm: React.FC = () => {
               <p className="text-slate-400 text-[10px] font-bold tracking-widest mb-1 uppercase">Total Taka Calculation</p>
               <div className="flex items-baseline gap-2">
                  <span className="text-white/50 text-xl">৳</span>
-                 <span className="text-4xl text-white font-black">{calculatedTotal.toLocaleString()}</span>
+                 <span className="text-4xl text-white font-black">{calculatedTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
               </div>
             </div>
             <div className="flex gap-4">

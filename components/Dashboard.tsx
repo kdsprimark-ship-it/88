@@ -5,16 +5,44 @@ import { Icons, THEMES } from '../constants';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 const Dashboard: React.FC = () => {
-  const { indianEntries, billInfos, settings, accountEntries } = useApp();
+  const { indianEntries, billInfos, settings, accountEntries, exportBackup, importBackup } = useApp();
   const [time, setTime] = useState(new Date());
+  const [isFullScreen, setIsFullScreen] = useState(!!document.fullscreenElement);
 
   useEffect(() => {
     const timer = setInterval(() => setTime(new Date()), 1000);
-    return () => clearInterval(timer);
+    const handleFullScreenChange = () => setIsFullScreen(!!document.fullscreenElement);
+    document.addEventListener('fullscreenchange', handleFullScreenChange);
+    return () => {
+      clearInterval(timer);
+      document.removeEventListener('fullscreenchange', handleFullScreenChange);
+    };
   }, []);
 
   const activeTheme = THEMES.find(t => t.name === settings.theme) || THEMES[0];
 
+  const toggleFullScreen = () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(err => console.error(err));
+    } else {
+      if (document.exitFullscreen) document.exitFullscreen();
+    }
+  };
+
+  const handleFileImport = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        if (ev.target?.result) {
+          importBackup(ev.target.result as string);
+          e.target.value = ''; 
+        }
+      };
+      reader.readAsText(file);
+    }
+  };
+  
   const calculateStats = (period: 'today' | 'month' | 'lifetime') => {
     const now = new Date();
     
@@ -56,9 +84,7 @@ const Dashboard: React.FC = () => {
     { label: 'LIFE TIME', stats: calculateStats('lifetime') }
   ];
 
-  const handlePrint = () => {
-    window.print();
-  };
+  const handlePrint = () => window.print();
 
   return (
     <div className="space-y-6 print:p-0">
@@ -74,14 +100,11 @@ const Dashboard: React.FC = () => {
           </div>
         </div>
         
-        <div className="flex items-center gap-3">
-          <button 
-            onClick={handlePrint}
-            className="p-3 bg-white border border-slate-200 rounded-2xl text-slate-600 hover:bg-slate-50 transition-all shadow-sm flex items-center gap-2"
-          >
-            <Icons.Printer size={18} />
-            <span className="text-xs font-bold uppercase hidden sm:inline">Print Snapshot</span>
-          </button>
+        <div className="flex items-center gap-2 flex-wrap justify-end">
+          <button onClick={toggleFullScreen} className="p-3 bg-white border border-slate-200 rounded-2xl text-slate-600 hover:bg-slate-50 transition-all shadow-sm flex items-center gap-2"><span className="text-xs font-bold uppercase hidden sm:inline">{isFullScreen ? 'Exit' : 'Full Screen'}</span>{isFullScreen ? <Icons.Shrink size={16} /> : <Icons.Expand size={16} />}</button>
+          <button onClick={exportBackup} className="p-3 bg-white border border-slate-200 rounded-2xl text-slate-600 hover:bg-slate-50 transition-all shadow-sm flex items-center gap-2"><Icons.Download size={16} /><span className="text-xs font-bold uppercase hidden sm:inline">Backup</span></button>
+          <label className="p-3 bg-white border border-slate-200 rounded-2xl text-slate-600 hover:bg-slate-50 transition-all shadow-sm flex items-center gap-2 cursor-pointer"><Icons.RefreshCw size={16} /><span className="text-xs font-bold uppercase hidden sm:inline">Restore</span><input type="file" className="hidden" accept=".json" onChange={handleFileImport} /></label>
+          <button onClick={handlePrint} className="p-3 bg-white border border-slate-200 rounded-2xl text-slate-600 hover:bg-slate-50 transition-all shadow-sm flex items-center gap-2"><Icons.Printer size={18} /><span className="text-xs font-bold uppercase hidden sm:inline">Print</span></button>
           <div className={`p-3 rounded-2xl bg-gradient-to-r ${activeTheme.from} ${activeTheme.to} text-white shadow-xl flex items-center gap-4`}>
             <Icons.Clock size={24} />
             <div className="min-w-[100px]">

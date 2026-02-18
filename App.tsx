@@ -13,6 +13,7 @@ import TruckInfo from './components/TruckInfo';
 import UserManagement from './components/UserManagement';
 import Settings from './components/Settings';
 import Login from './components/Login';
+import PriceRateSettings from './components/PriceRateSettings';
 import { Icons } from './components/../constants';
 
 const FullScreenLoader: React.FC = () => (
@@ -30,7 +31,7 @@ const FullScreenError: React.FC<{ message: string; onRetry: () => void }> = ({ m
         <h2 className="text-xl font-black text-rose-900">Connection Error</h2>
         <p className="text-rose-600 max-w-sm mt-2 mb-8">{message}</p>
         <button
-            onClick={onRetry}
+            onClick={() => onRetry()}
             className="px-8 py-4 bg-rose-600 text-white font-bold rounded-2xl flex items-center gap-2"
         >
             <Icons.RefreshCw size={16} /> Retry Connection
@@ -39,19 +40,21 @@ const FullScreenError: React.FC<{ message: string; onRetry: () => void }> = ({ m
 );
 
 const MainContent: React.FC = () => {
-  const { isAuthenticated, isLoading, error, fetchAllData } = useApp();
+  const { isAuthenticated, isLoading, error, fetchAllData, indianEntries } = useApp();
   const [activeTab, setActiveTab] = useState('dashboard');
 
   if (!isAuthenticated) {
     return <Login />;
   }
   
-  if (isLoading && !error) {
+  if (isLoading) {
     return <FullScreenLoader />;
   }
 
-  if (error) {
-    return <FullScreenError message={error} onRetry={fetchAllData} />;
+  // Show full screen error only if the initial data load fails (i.e., we have an error and no data).
+  // Subsequent background sync errors will be handled by the new indicator in Layout.
+  if (error && !indianEntries.length) {
+    return <FullScreenError message={error} onRetry={() => fetchAllData(false)} />;
   }
 
   const renderContent = () => {
@@ -64,6 +67,7 @@ const MainContent: React.FC = () => {
       case 'account-info': return <AccountInfo />;
       case 'hm-cutoff': return <HMCutoff />;
       case 'truck-info': return <TruckInfo />;
+      case 'price-rates': return <PriceRateSettings />;
       case 'user-management': return <UserManagement />;
       case 'settings': return <Settings />;
       default: return <Dashboard />;

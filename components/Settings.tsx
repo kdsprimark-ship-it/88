@@ -4,7 +4,7 @@ import { useApp } from '../store/AppContext';
 import { THEMES, Icons, FONT_FAMILIES, LANGUAGES } from '../constants';
 
 const Settings: React.FC = () => {
-  const { settings, updateSettings, resetApp, exportBackup, importBackup } = useApp();
+  const { settings, updateSettings, resetApp, exportBackup, importBackup, fetchAllData } = useApp();
   const [activeSection, setActiveSection] = useState('system');
   const [isLinking, setIsLinking] = useState(false);
   const [isLinked, setIsLinked] = useState(false);
@@ -14,6 +14,7 @@ const Settings: React.FC = () => {
     { id: 'system', label: 'System Settings', icon: <Icons.Palette size={18} /> },
     { id: 'sync', label: 'Cloud Sync Setup', icon: <Icons.Cloud size={18} /> },
     { id: 'identity', label: 'Admin Identity', icon: <Icons.UserIcon size={18} /> },
+    { id: 'repair', label: 'Repair & Sync', icon: <Icons.Database size={18} /> }
   ];
 
   const handleLinkAccount = () => {
@@ -140,15 +141,25 @@ const Settings: React.FC = () => {
                 </div>
                 <h4 className="text-lg font-black text-slate-900 uppercase tracking-tight">Manage Business Registry</h4>
                 <p className="text-slate-400 text-xs font-bold max-w-xs mx-auto leading-relaxed uppercase tracking-wider mb-8">Configure Shippers, Buyers, Depots and conditions for automatic calculations.</p>
-                <button 
-                  onClick={() => {
-                    const el = document.querySelector('[data-tab-id="export-info"]') as HTMLElement;
-                    if (el) el.click();
-                  }} 
-                  className="px-12 py-5 bg-slate-900 text-white rounded-2xl font-black text-xs uppercase tracking-[0.3em] shadow-2xl hover:bg-slate-800 transition-all"
-                >
-                  RUN REGISTRY MANAGER
-                </button>
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+                  <button 
+                    onClick={() => {
+                      const el = document.querySelector('[data-tab-id="export-info"]') as HTMLElement;
+                      if (el) el.click();
+                    }} 
+                    className="w-full sm:w-auto px-12 py-5 bg-slate-900 text-white rounded-2xl font-black text-xs uppercase tracking-[0.3em] shadow-2xl hover:bg-slate-800 transition-all"
+                  >
+                    Manage in App
+                  </button>
+                  <a 
+                    href="https://docs.google.com/spreadsheets/d/1zIQUZr6KdZ8DzrZjhvmz_H-iHApQaJ8XvxLZgvdC2Y8/edit?usp=sharing"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full sm:w-auto flex items-center justify-center gap-3 px-12 py-5 bg-emerald-600 text-white rounded-2xl font-black text-xs uppercase tracking-[0.3em] shadow-2xl hover:bg-emerald-700 transition-all"
+                  >
+                    <Icons.Globe size={16} /> View Sheet
+                  </a>
+                </div>
              </div>
           </div>
         );
@@ -171,6 +182,34 @@ const Settings: React.FC = () => {
              </button>
           </div>
         );
+      case 'repair':
+        return (
+          <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
+            <div className="p-8 bg-amber-50/50 rounded-[40px] border-2 border-dashed border-amber-200">
+               <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center mx-auto shadow-xl text-amber-500 mb-6">
+                  <Icons.Database size={32} />
+               </div>
+               <h4 className="text-lg font-black text-amber-900 uppercase tracking-tight text-center">System Repair & Troubleshooting</h4>
+               <p className="text-amber-700 text-xs font-bold max-w-md mx-auto leading-relaxed uppercase tracking-wider mb-8 text-center">
+                 If data doesn't sync or you see errors, your Cloud URL might be incorrect or permissions may have changed.
+               </p>
+               <div className="bg-white/50 p-6 rounded-[32px] border border-amber-100">
+                  <h4 className="font-black text-amber-900 text-sm mb-1 uppercase">Force Hard Refresh</h4>
+                  <p className="text-xs text-amber-600 font-medium mb-6">This will clear all local data and re-download everything from Google Sheets. This is a powerful but safe action to resolve sync issues.</p>
+                  <button 
+                    onClick={() => {
+                      if(confirm('Are you sure? This will clear all cached data and re-sync from the cloud.')) {
+                        resetApp();
+                      }
+                    }} 
+                    className="flex items-center gap-3 px-8 py-4 bg-amber-500 text-white rounded-2xl font-black text-xs hover:bg-amber-600 transition-all shadow-lg shadow-amber-200"
+                  >
+                    <Icons.RefreshCw size={16} /> FORCE REFRESH & SYNC
+                  </button>
+               </div>
+            </div>
+          </div>
+        );
       default: return null;
     }
   };
@@ -181,7 +220,7 @@ const Settings: React.FC = () => {
         <div className="bg-white p-8 rounded-[40px] shadow-sm border border-slate-100">
            <div className="flex flex-col items-center gap-4">
              <div className="relative">
-                <img src={settings.profileImageUrl} className="w-24 h-24 rounded-[32px] border-4 border-slate-50 shadow-2xl object-cover" />
+                <img src={settings.profileImageUrl} alt="Admin Profile" className="w-24 h-24 rounded-[32px] border-4 border-slate-50 shadow-2xl object-cover" />
                 <div className="absolute -bottom-2 -right-2 p-2 bg-emerald-500 rounded-2xl border-4 border-white shadow-lg text-white">
                    <Icons.Lock size={14} />
                 </div>
@@ -215,7 +254,7 @@ const Settings: React.FC = () => {
             <h2 className="text-2xl font-black text-slate-900 uppercase tracking-tighter">{activeSection.toUpperCase()} Control</h2>
             <p className="text-xs text-slate-400 font-bold uppercase mt-1 tracking-widest">Inventory Pro Mobile v3.5 Stable</p>
           </div>
-          <button onClick={() => window.location.reload()} className="p-4 bg-slate-50 text-slate-400 rounded-2xl hover:bg-slate-100 hover:text-indigo-500 transition-all">
+          <button onClick={() => fetchAllData(false)} className="p-4 bg-slate-50 text-slate-400 rounded-2xl hover:bg-slate-100 hover:text-indigo-500 transition-all">
             <Icons.RefreshCw size={20} />
           </button>
         </div>

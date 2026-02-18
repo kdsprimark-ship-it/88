@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useApp } from '../store/AppContext';
 import { NAV_ITEMS, Icons, THEMES } from '../constants';
 
@@ -9,16 +9,34 @@ interface LayoutProps {
   setActiveTab: (tab: string) => void;
 }
 
+const SyncStatusIndicator: React.FC = () => {
+  const { syncStatus, error, fetchAllData } = useApp();
+
+  const statusMap = {
+    idle: { icon: <Icons.Cloud size={18} />, color: 'text-emerald-500', bgColor: 'bg-emerald-50', tooltip: 'Data Synced' },
+    syncing: { icon: <Icons.RefreshCw size={18} className="animate-spin" />, color: 'text-blue-500', bgColor: 'bg-blue-50', tooltip: 'Syncing...' },
+    error: { icon: <Icons.Cloud size={18} />, color: 'text-rose-500', bgColor: 'bg-rose-50', tooltip: `Sync Failed. Click to retry. Error: ${error}` },
+  };
+
+  const currentStatus = statusMap[syncStatus];
+
+  return (
+    <button
+      onClick={() => fetchAllData(false)}
+      title={currentStatus.tooltip}
+      className={`p-3 rounded-2xl transition-all ${currentStatus.bgColor} ${currentStatus.color}`}
+      disabled={syncStatus === 'syncing'}
+    >
+      {currentStatus.icon}
+    </button>
+  );
+};
+
+
 const Layout: React.FC<LayoutProps> = ({ children, activeTab, setActiveTab }) => {
   const { settings, logout } = useApp();
   const [isSidebarOpen, setSidebarOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    const timer = setTimeout(() => setIsLoading(false), 1200);
-    return () => clearTimeout(timer);
-  }, [activeTab]);
-
+  
   const activeTheme = THEMES.find(t => t.name === settings.theme) || THEMES[0];
 
   const containerStyle: React.CSSProperties = {
@@ -28,15 +46,6 @@ const Layout: React.FC<LayoutProps> = ({ children, activeTab, setActiveTab }) =>
     zoom: `${settings.zoom}%`,
     fontFamily: `${settings.fontFamily}, sans-serif`
   };
-
-  if (isLoading) {
-    return (
-      <div className={`fixed inset-0 z-[100] flex flex-col items-center justify-center bg-gradient-to-r ${activeTheme.from} ${activeTheme.to}`}>
-        <div className="ipad-loader mb-4"></div>
-        <p className="text-white font-black animate-pulse tracking-widest text-xs uppercase">Initializing Inventory Core...</p>
-      </div>
-    );
-  }
 
   return (
     <div className="flex h-screen overflow-hidden" style={containerStyle}>
@@ -117,9 +126,7 @@ const Layout: React.FC<LayoutProps> = ({ children, activeTab, setActiveTab }) =>
 
           <div className="flex items-center gap-5">
             <div className="flex items-center gap-4 pr-6 border-r border-slate-100 hidden sm:flex">
-              <button onClick={() => window.location.reload()} className="p-3 bg-slate-50 text-slate-400 rounded-2xl hover:text-indigo-600 transition-all">
-                <Icons.RefreshCw size={18} />
-              </button>
+              <SyncStatusIndicator />
               <button className="p-3 bg-slate-50 text-slate-400 rounded-2xl relative hover:text-indigo-600 transition-all">
                 <Icons.Bell size={18} />
                 <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-rose-500 rounded-full border-2 border-white"></span>
@@ -132,6 +139,7 @@ const Layout: React.FC<LayoutProps> = ({ children, activeTab, setActiveTab }) =>
               </div>
               <img 
                 src={settings.profileImageUrl} 
+                alt="Admin Profile"
                 className="w-12 h-12 rounded-[18px] object-cover border-4 border-slate-50 shadow-lg"
               />
             </div>

@@ -30,7 +30,7 @@ export interface BillInfo {
   id: string;
   date: string;
   invoiceNo: string;
-  shipperName: string;
+  shipperName:string;
   totalDoc: number;
   totalIndian: number;
   totalBill: number;
@@ -85,6 +85,6 @@ export interface DepotCode {
 export interface PriceRate {
   id: string;
   buyerName: string;
-  condition: string;
+  condition: 'DOC' | 'CTN' | 'TON' | 'TRUCK UNLOAD';
   rate: number;
 }

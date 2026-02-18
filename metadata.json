@@ -1,7 +1,5 @@
 {
-  "name": "i love u allha",
+  "name": "Inventory Pro",
   "description": "A comprehensive mobile-first inventory management application with automated rate calculation, billing tracking, and depot analysis.",
-  "requestFramePermissions": [
-    "camera"
-  ]
+  "requestFramePermissions": []
 }

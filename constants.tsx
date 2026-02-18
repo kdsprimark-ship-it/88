@@ -28,7 +28,10 @@ import {
   RefreshCw,
   Box,
   Cloud,
-  Palette
+  Palette,
+  Expand,
+  Shrink,
+  Tags
 } from 'lucide-react';
 
 export const THEMES = [
@@ -61,6 +64,7 @@ export const NAV_ITEMS = [
   { id: 'account-info', label: 'Account Info', icon: <Wallet size={20} /> },
   { id: 'hm-cutoff', label: 'H&M Cutoff Info', icon: <BarChart3 size={20} /> },
   { id: 'truck-info', label: 'Truck Info', icon: <Truck size={20} /> },
+  { id: 'price-rates', label: 'Price Rate Settings', icon: <Tags size={20} /> },
   { id: 'master-data', label: 'Master Data Sheet', icon: <Table size={20} /> },
   { id: 'export-info', label: 'Export Info', icon: <Share2 size={20} /> },
   { id: 'user-management', label: 'User Management', icon: <UserCog size={20} /> },
@@ -96,5 +100,8 @@ export const Icons = {
   Wallet,
   LayoutDashboard,
   UserCog,
-  SettingsIcon
+  SettingsIcon,
+  Expand,
+  Shrink,
+  Tags
 };
